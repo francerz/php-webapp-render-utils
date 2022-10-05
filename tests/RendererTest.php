@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 class RendererTest extends TestCase
 {
-    public function testRedirect()
+    public function testRenderRedirect()
     {
         $responseFactory = new HttpFactory();
         $renderer = new Renderer($responseFactory);
@@ -21,7 +21,7 @@ class RendererTest extends TestCase
         $this->assertEquals(['http://www.example.com/test'], $response->getHeader('Location'));
     }
 
-    public function testRedirectSampled()
+    public function testRenderRedirectResponse()
     {
         $response = new Response();
         $response = $response->withHeader('Authorization', 'Bearer qwertyuiopasdfghjklzxcvbnm');
@@ -38,6 +38,18 @@ class RendererTest extends TestCase
         $this->assertEquals(StatusCodeInterface::STATUS_FOUND, $response->getStatusCode());
         $this->assertEquals(['http://www.example.com/test'], $response->getHeader('Location'));
         $this->assertEquals(['Bearer qwertyuiopasdfghjklzxcvbnm'], $response->getHeader('Authorization'));
+    }
+
+    public function renderString()
+    {
+        $responseFactory = new HttpFactory();
+        $renderer = new Renderer($responseFactory);
+
+        $response = $renderer->render("Hello World!");
+
+        $this->assertEquals(StatusCodeInterface::STATUS_OK, $response->getStatusCode());
+        $this->assertEquals(['text/plain'], $response->getHeader('Content-Type'));
+        $this->assertEquals("Hello World!", (string)$response->getBody());
     }
 
     public function testRenderJson()

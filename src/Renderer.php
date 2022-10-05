@@ -26,13 +26,18 @@ class Renderer
             ->withHeader('Location', (string)$location);
     }
 
-    public function renderJson($data, ?ResponseInterface $response = null)
+    public function render($content, $contentType = 'text/plain', ?ResponseInterface $response = null)
     {
         $response = $response ?? $this->responseFactory->createResponse();
-        $response = $response->withHeader('Content-Type', 'application/json;charset=utf-8');
+        $response = $response->withHeader('Content-Type', $contentType);
         $body = $response->getBody();
-        $body->write(json_encode($data));
+        $body->write((string)$content);
         $body->rewind();
         return $response;
+    }
+
+    public function renderJson($data, ?ResponseInterface $response = null)
+    {
+        return $this->render(json_encode($data), 'application/json;charset=utf-8');
     }
 }
