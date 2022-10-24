@@ -101,4 +101,51 @@ class RendererTest extends TestCase
             "Michael;Jackson;;\"\"The Database\"\"\r\n";
         $this->assertEquals($expected, (string)$response->getBody());
     }
+
+    public function testRenderFile()
+    {
+        $httpFactory = new HttpFactory();
+        $renderer = new Renderer($httpFactory, $httpFactory);
+
+        $path = dirname(__FILE__, 2) . '/tests-assets/test.txt';
+
+        $response = $renderer->renderFile($path, 'test-file.txt', true);
+
+        $this->assertEquals(StatusCodeInterface::STATUS_OK, $response->getStatusCode());
+        $this->assertEquals(['text/plain'], $response->getHeader('Content-Type'));
+        $this->assertEquals(["attachment;filename=\"test-file.txt\""], $response->getHeader('Content-Disposition'));
+        $this->assertEquals(
+            "Alpha, Bravo, Charlie, Delta,\nEcho, Foxtrot, Golf, Hotel.\n",
+            (string)$response->getBody()
+        );
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testRenderView()
+    {
+        $httpFactory = new HttpFactory();
+        $renderer = new Renderer($httpFactory, $httpFactory);
+
+        $path = dirname(__FILE__, 2) . '/tests-assets/view.php';
+        $response = $renderer->renderView($path, [
+            'title' => 'Main title',
+            'content' => 'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laborum, alias?'
+        ]);
+        $this->assertEquals(['X-Test-Header' => ['New Test Header']], $response->getHeaders());
+        $this->assertEquals(
+            "<html>\n" .
+            "    <head>\n" .
+            "    <link href=\"styles.css\" />\n" .
+            "    <title>Main title</title>\n" .
+            "</head>\n" .
+            "    <body>\n" .
+            "        <h1>Main title</h1>\n" .
+            "        <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laborum, alias?</p>\n" .
+            "    </body>\n" .
+            "</html>\n",
+            (string)$response->getBody()
+        );
+    }
 }
