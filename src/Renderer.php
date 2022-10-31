@@ -12,6 +12,8 @@ class Renderer
 {
     private $responseFactory;
     private $streamFactory;
+    /** @var string|null */
+    private $viewsBasePath = null;
 
     public function __construct(
         ResponseFactoryInterface $responseFactory,
@@ -206,6 +208,11 @@ class Renderer
         return $response;
     }
 
+    public function setViewsBasePath(?string $basepath)
+    {
+        $this->viewsBasePath = rtrim(strtr($basepath, '\\', '/'), '/');
+    }
+
     public function renderView(
         string $viewpath,
         array $data = [],
@@ -215,7 +222,7 @@ class Renderer
 
         $state = new ServerState();
 
-        $view = new View($viewpath, $data);
+        $view = new View($viewpath, $data, $this->viewsBasePath);
         $stream = $view->render($streamFactory);
 
         // Creates PSR-7 ResponseInterface

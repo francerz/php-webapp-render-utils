@@ -127,9 +127,8 @@ class RendererTest extends TestCase
     {
         $httpFactory = new HttpFactory();
         $renderer = new Renderer($httpFactory, $httpFactory);
-
-        $path = dirname(__FILE__, 2) . '/tests-assets/view.php';
-        $response = $renderer->renderView($path, [
+        $renderer->setViewsBasePath(dirname(__FILE__, 2) . '/tests-assets');
+        $response = $renderer->renderView('view.php', [
             'title' => 'Main title',
             'content' => 'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laborum, alias?'
         ]);

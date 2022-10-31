@@ -10,14 +10,17 @@ class View
 {
     private $path;
     private $vars;
+    /** @var string|null */
+    private $viewsBasePath = null;
     /** @var Header[] */
     private $headers = [];
     /** @var Layout */
     private $layout = null;
 
-    public function __construct(string $path, array $vars = [])
+    public function __construct(string $path, array $vars = [], ?string $viewsBasePath = null)
     {
-        $this->path = $path;
+        $this->viewsBasePath = $viewsBasePath;
+        $this->path = $this->getViewPath($path);
         $this->vars = $vars;
     }
 
@@ -26,8 +29,21 @@ class View
         return $this->vars;
     }
 
+    private function getViewPath(string $path)
+    {
+        if (isset($this->viewsBasePath)) {
+            $path = $this->viewsBasePath . '/' . ltrim($path, '/');
+        }
+        $extPos = strpos($path, '.php', -4);
+        if ($extPos === false) {
+            $path .= '.php';
+        }
+        return $path;
+    }
+
     public function include(string $path, array $vars = [])
     {
+        $path = $this->getViewPath($path);
         $vars = array_merge($this->vars, $vars, ['view' => $this]);
         (function () use ($path, $vars) {
             extract($vars);
@@ -40,6 +56,7 @@ class View
         if (isset($this->layout)) {
             throw new LayoutAlreadyLoadedException("This view already has a loaded layout.");
         }
+        $path = $this->getViewPath($path);
         return ($this->layout = new Layout($this, $path));
     }
 

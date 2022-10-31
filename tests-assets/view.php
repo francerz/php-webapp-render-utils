@@ -1,7 +1,7 @@
 <?php
 /** @var \Francerz\WebappRenderUtils\View */
 $view = $view;
-$layout = $view->loadLayout(__DIR__ . '/layout.php');
+$layout = $view->loadLayout('layout');
 ?>
 <!-- This comment is ignored because out of layout section -->
 <?php $layout->startSection('content'); ?>
