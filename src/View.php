@@ -51,13 +51,13 @@ class View
         })();
     }
 
-    public function loadLayout(string $path)
+    public function loadLayout(string $path, array $vars = [])
     {
         if (isset($this->layout)) {
             throw new LayoutAlreadyLoadedException("This view already has a loaded layout.");
         }
         $path = $this->getViewPath($path);
-        return ($this->layout = new Layout($this, $path));
+        return ($this->layout = new Layout($this, $path, $vars));
     }
 
     /**
