@@ -31,6 +31,11 @@ class Layout
 
     public function startSection(string $sectionName)
     {
+        if (isset($this->section[$sectionName])) {
+            throw new AlreadyDefinedSectionException(
+                "Section {$sectionName} was already defined in this layout."
+            );
+        }
         $file = tmpfile();
         if ($file === false) {
             throw new RuntimeException('Failed to start section.');
@@ -45,6 +50,11 @@ class Layout
     public function endSection()
     {
         ob_end_clean();
+    }
+
+    public function __toString()
+    {
+        return '';
     }
 
     public function render()
