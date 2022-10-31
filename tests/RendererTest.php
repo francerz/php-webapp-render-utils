@@ -133,19 +133,20 @@ class RendererTest extends TestCase
             'title' => 'Main title',
             'content' => 'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laborum, alias?'
         ]);
-        $this->assertEquals(['X-Test-Header' => ['New Test Header']], $response->getHeaders());
-        $this->assertEquals(
+        $this->assertEquals(['X-Test-Header' => ['New Test Header', 'Other Header']], $response->getHeaders());
+        $expected =
             "<html>\n" .
             "    <head>\n" .
-            "    <link href=\"styles.css\" />\n" .
-            "    <title>Main title</title>\n" .
-            "</head>\n" .
+            "        <link href=\"styles.css\" />\n" .
+            "        <title>Main title</title>\n" .
+            "    </head>\n" .
             "    <body>\n" .
             "        <h1>Main title</h1>\n" .
             "        <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laborum, alias?</p>\n" .
             "    </body>\n" .
-            "</html>\n",
-            (string)$response->getBody()
-        );
+            "</html>\n";
+        $expected = preg_replace('/\\s+/', ' ', $expected);
+        $actual = preg_replace('/\\s+/', ' ', (string)$response->getBody());
+        $this->assertEquals($expected, $actual);
     }
 }

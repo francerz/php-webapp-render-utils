@@ -228,6 +228,11 @@ class Renderer
             $response = $response->withHeader(trim($hname), $hcontent);
         }
 
+        $headers = $view->getHeaders();
+        foreach ($headers as $header) {
+            $response = $response->withAddedHeader($header->getName(), $header->getContent());
+        }
+
         $state->restore();
         return $response;
     }
