@@ -53,7 +53,12 @@ class Renderer
         return '"' . strtr($string, '"', '""') . '"';
     }
 
-    private function getStreamFactory()
+    public function getResponseFactory()
+    {
+        return $this->responseFactory;
+    }
+
+    public function getStreamFactory()
     {
         if (!isset($this->streamFactory)) {
             throw new LogicException('Missing $responseFactory.');
