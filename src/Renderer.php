@@ -7,6 +7,7 @@ use LogicException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
+use RuntimeException;
 
 class Renderer
 {
@@ -246,6 +247,39 @@ class Renderer
         }
 
         $state->restore();
+        return $response;
+    }
+
+    public function renderCallback(callable $callback, ?ResponseInterface $response = null)
+    {
+        $tmpfile = tmpfile();
+        if ($tmpfile === false) {
+            throw new RuntimeException('Failed to create temp file.');
+        }
+
+        $serverState = new ServerState();
+        $serverState->backup();
+
+        ob_start(function (string $buffer) use ($tmpfile) {
+            fwrite($tmpfile, $buffer);
+            return '';
+        }, 4096);
+        ($callback)();
+        ob_end_clean();
+        fseek($tmpfile, 0);
+
+        $streamFactory = $this->getStreamFactory();
+        $stream = $streamFactory->createStreamFromResource($tmpfile);
+        $response = $this->responseFactory
+            ->createResponse($serverState->getNewCode())
+            ->withBody($stream);
+
+        $headers = $serverState->getNewHeaders();
+        foreach ($headers as $hname => $hcontent) {
+            $response = $response->withHeader(trim($hname), $hcontent);
+        }
+
+        $serverState->restore();
         return $response;
     }
 }

@@ -148,4 +148,19 @@ class RendererTest extends TestCase
         $actual = preg_replace('/\\s+/', ' ', (string)$response->getBody());
         $this->assertEquals($expected, $actual);
     }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testRenderCallback()
+    {
+        $httpFactory = new HttpFactory();
+        $renderer = new Renderer($httpFactory, $httpFactory);
+        $response = $renderer->renderCallback(function () {
+            header('X-Test-Header: New Test Header');
+            echo "TEST";
+        });
+        $this->assertEquals(['X-Test-Header' => ['New Test Header']], $response->getHeaders());
+        $this->assertEquals('TEST', (string)$response->getBody());
+    }
 }

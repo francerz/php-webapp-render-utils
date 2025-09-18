@@ -17,6 +17,7 @@ Contents
 ---------------------------------------
 - [Webapp Renderer](#webapp-renderer)
   - [Contents](#contents)
+  - [Rendering with a callback](#rendering-with-a-callback)
   - [View Renderer](#view-renderer)
     - [Rendering a view](#rendering-a-view)
     - [Including subviews](#including-subviews)
@@ -26,6 +27,29 @@ Contents
     - [Class `View`](#class-view)
     - [Class `Layout`](#class-layout)
     - [Class `LayoutView`](#class-layoutview)
+
+## Rendering with a callback
+
+The `renderCallback` method allows executing arbitrary PHP code inside a 
+callback function. All output generated (both body content and headers sent
+with `header()`) will be captured into a PSR-7 `ResponseInterface` object.
+
+This is useful for cases where third-party code writes directly to `stdout`
+or sets headers without returning a `ResponseInterface`.
+
+```php
+$response = $renderer->renderCallback(function () {
+    header('X-Test-Header: Value1', false);
+    header('X-Test-Header: Value2', false);
+    echo "Hello world!";
+});
+
+$response->getHeaders();
+// ['X-Test-Header' => ['Value1', 'Value2']]
+
+(string) $response->getBody();
+// "Hello world!"
+```
 
 View Renderer
 ---------------------------------------
